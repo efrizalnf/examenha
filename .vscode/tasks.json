@@ -1,0 +1,198 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Generate brand assets and launcher icons",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"pub",
+				"get",
+				"&&",
+				"dart",
+				"run",
+				"tool/generate_brand_assets.dart",
+				"&&",
+				"dart",
+				"run",
+				"flutter_launcher_icons"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check Flutter dependency updates",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"pub",
+				"outdated"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Uninstall app from Android target",
+			"type": "shell",
+			"command": "adb",
+			"args": [
+				"uninstall",
+				"id.zlz.examforms"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "List Android devices",
+			"type": "shell",
+			"command": "adb",
+			"args": [
+				"devices",
+				"-l"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Uninstall app from emulator",
+			"type": "shell",
+			"command": "adb",
+			"args": [
+				"-s",
+				"emulator-5554",
+				"uninstall",
+				"id.zlz.examforms"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Inspect emulator package and storage",
+			"type": "shell",
+			"command": "sh",
+			"args": [
+				"-c",
+				"adb -s emulator-5554 shell pm list packages id.zlz.examforms && adb -s emulator-5554 shell df -h /data"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Trim emulator caches",
+			"type": "shell",
+			"command": "sh",
+			"args": [
+				"-c",
+				"adb -s emulator-5554 shell pm trim-caches 2G && adb -s emulator-5554 shell df -h /data"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build debug APK",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"build",
+				"apk",
+				"--debug"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Rebuild debug APK after Kotlin migration",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"build",
+				"apk",
+				"--debug"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Check emulator install location",
+			"type": "shell",
+			"command": "adb",
+			"args": [
+				"-s",
+				"emulator-5554",
+				"shell",
+				"pm",
+				"get-install-location"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Clean emulator temp storage",
+			"type": "shell",
+			"command": "sh",
+			"args": [
+				"-c",
+				"adb -s emulator-5554 shell rm -rf /data/local/tmp/* && adb -s emulator-5554 shell pm trim-caches 4G && adb -s emulator-5554 shell df -h /data /data/local/tmp"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Install debug APK on physical device",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"install",
+				"-d",
+				"adb-ZP22224MDL-o1szGt._adb-tls-connect._tcp"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Refresh dependencies after cleanup",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"pub",
+				"get"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build debug APK after native audit",
+			"type": "shell",
+			"command": "flutter",
+			"args": [
+				"build",
+				"apk",
+				"--debug"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Audit plugin branches and forks",
+			"type": "shell",
+			"command": "sh",
+			"args": [
+				"-c",
+				"echo '--- flutter/packages branches ---' && git ls-remote --heads https://github.com/flutter/packages.git | grep -i kotlin || true && echo '--- mobile_scanner branches ---' && git ls-remote --heads https://github.com/juliansteenbakker/mobile_scanner.git | grep -i kotlin || true && echo '--- flutter/packages forks ---' && curl -L --silent 'https://api.github.com/repos/flutter/packages/forks?per_page=15&sort=newest' | jq -r '.[].full_name' && echo '--- mobile_scanner forks ---' && curl -L --silent 'https://api.github.com/repos/juliansteenbakker/mobile_scanner/forks?per_page=15&sort=newest' | jq -r '.[].full_name'"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Audit plugin branches and forks retry",
+			"type": "shell",
+			"command": "python3",
+			"args": [
+				"-c",
+				"import json, subprocess, urllib.request\n\ndef run(cmd):\n    return subprocess.run(cmd, shell=True, check=False, capture_output=True, text=True).stdout.strip()\n\nprint('flutter/packages branches:')\nprint(run(\"git ls-remote --heads https://github.com/flutter/packages.git | grep -i kotlin || true\"))\nprint('mobile_scanner branches:')\nprint(run(\"git ls-remote --heads https://github.com/juliansteenbakker/mobile_scanner.git | grep -i kotlin || true\"))\nfor label, url in [\n    ('flutter/packages forks', 'https://api.github.com/repos/flutter/packages/forks?per_page=15&sort=newest'),\n    ('mobile_scanner forks', 'https://api.github.com/repos/juliansteenbakker/mobile_scanner/forks?per_page=15&sort=newest'),\n]:\n    print(label + ':')\n    with urllib.request.urlopen(url) as response:\n        data = json.load(response)\n    for item in data:\n        print(item['full_name'])\n"
+			],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}

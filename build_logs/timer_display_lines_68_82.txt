@@ -1,0 +1,15 @@
+    68	                  Text(
+    69	                    time,
+    70	                    style: const TextStyle(
+    71	                      color: AppColors.timerText,
+    72	                      fontSize: 13,
+    73	                      fontWeight: FontWeight.bold,
+    74	                      fontFeatures: [FontFeature.tabularFigures()],
+    75	                      height: 1,
+    76	                    ),
+    77	                  ),
+    78	                ),
+    79	              ),
+    80	            ],
+    81	          ),
+    82	        );
