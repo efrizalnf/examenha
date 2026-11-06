@@ -23,3 +23,14 @@ class PermissionFailure extends Failure {
 class SecurityFailure extends Failure {
   const SecurityFailure(super.message);
 }
+
+/// Error dari API ExamForm; `code` mengikuti tabel kode error di docs/API.md.
+class ApiFailure extends Failure {
+  final String code;
+  const ApiFailure(super.message, {required this.code});
+
+  bool get isNetwork => code == 'NETWORK';
+
+  @override
+  List<Object> get props => [message, code];
+}

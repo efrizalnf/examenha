@@ -5,16 +5,17 @@ import '../../../../core/constants/app_colors.dart';
 import '../bloc/exam_bloc.dart';
 import '../bloc/exam_state.dart';
 
-/// Widget floating timer yang menampilkan waktu berjalan HH:mm:ss
+/// Widget floating timer: HITUNG MUNDUR sisa waktu (HH:mm:ss) dari server.
 class TimerDisplay extends StatelessWidget {
   const TimerDisplay({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ExamBloc, ExamState>(
-      buildWhen: (prev, curr) => prev.session?.elapsed != curr.session?.elapsed,
+      buildWhen: (prev, curr) => prev.remaining != curr.remaining,
       builder: (context, state) {
-        final time = state.session?.formattedElapsed ?? '00:00:00';
+        final time = state.formattedRemaining;
+        final urgent = state.remaining.inSeconds <= 300;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
@@ -41,8 +42,8 @@ class TimerDisplay extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 time,
-                style: const TextStyle(
-                  color: AppColors.timerText,
+                style: TextStyle(
+                  color: urgent ? AppColors.coral : AppColors.timerText,
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   fontFeatures: [FontFeature.tabularFigures()],

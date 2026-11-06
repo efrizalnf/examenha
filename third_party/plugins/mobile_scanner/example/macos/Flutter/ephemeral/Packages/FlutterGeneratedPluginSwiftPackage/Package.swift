@@ -9,24 +9,17 @@ import PackageDescription
 let package = Package(
     name: "FlutterGeneratedPluginSwiftPackage",
     platforms: [
-        .macOS("10.15")
+        .macOS("12.0")
     ],
     products: [
         .library(name: "FlutterGeneratedPluginSwiftPackage", type: .static, targets: ["FlutterGeneratedPluginSwiftPackage"])
     ],
     dependencies: [
-        .package(name: "mobile_scanner", path: "../.packages/mobile_scanner"),
-        .package(name: "file_selector_macos", path: "../.packages/file_selector_macos-0.9.5"),
-        .package(name: "FlutterFramework", path: "../.packages/FlutterFramework")
+        
     ],
     targets: [
         .target(
-            name: "FlutterGeneratedPluginSwiftPackage",
-            dependencies: [
-                .product(name: "mobile-scanner", package: "mobile_scanner"),
-                .product(name: "file-selector-macos", package: "file_selector_macos"),
-                .product(name: "FlutterFramework", package: "FlutterFramework")
-            ]
+            name: "FlutterGeneratedPluginSwiftPackage"
         )
     ]
 )

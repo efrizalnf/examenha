@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/services/security_service.dart';
 import '../../../../core/widgets/brand_loader.dart';
 import '../../../home/domain/entities/exam_link.dart';
+import '../../domain/repositories/exam_repository.dart';
 import '../bloc/exam_bloc.dart';
 import '../bloc/exam_event.dart';
 import '../bloc/exam_state.dart';
@@ -21,8 +23,11 @@ class ExamPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (ctx) =>
-          ExamBloc(securityService: ctx.read<SecurityService>(), link: link)
-            ..add(const ExamStartedEvent()),
+          ExamBloc(
+            securityService: ctx.read<SecurityService>(),
+            repository: GetIt.I<ExamRepository>(),
+            link: link,
+          )..add(const ExamStartedEvent()),
       child: _ExamView(link: link),
     );
   }
@@ -38,6 +43,13 @@ class _ExamView extends StatefulWidget {
 }
 
 class _ExamViewState extends State<_ExamView> with WidgetsBindingObserver {
+  /// Siswa hanya boleh berada di Google Forms (tautan lain dalam form diblokir).
+  static const _allowedHosts = {
+    'docs.google.com',
+    'forms.gle',
+    'forms.google.com',
+  };
+
   late final WebViewController _webController;
   bool _isWebViewReady = false;
   bool _isSecurityAlertShown = false;
@@ -60,8 +72,17 @@ class _ExamViewState extends State<_ExamView> with WidgetsBindingObserver {
       ..setBackgroundColor(AppColors.background)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (_) {
+          onNavigationRequest: (req) {
+            // about:blank dipakai untuk mengunci layar saat waktu habis.
+            if (req.url == 'about:blank') return NavigationDecision.navigate;
+            final host = Uri.tryParse(req.url)?.host ?? '';
+            return _allowedHosts.contains(host)
+                ? NavigationDecision.navigate
+                : NavigationDecision.prevent;
+          },
+          onPageFinished: (url) {
             if (mounted) setState(() => _isWebViewReady = true);
+            _checkSubmitted(url);
           },
           onWebResourceError: (error) {
             debugPrint('WebView error: ${error.description}');
@@ -69,6 +90,39 @@ class _ExamViewState extends State<_ExamView> with WidgetsBindingObserver {
         ),
       )
       ..loadRequest(Uri.parse(widget.link.url));
+  }
+
+  bool _submittedSent = false;
+
+  /// Google Forms yang bersekat (kolom NIS/Nama + halaman soal) juga memuat
+  /// `.../formResponse` saat pindah halaman ("Berikutnya"), jadi URL saja TIDAK
+  /// cukup untuk menyimpulkan form terkirim. Yang dipercaya: teks konfirmasi
+  /// yang kita pasang di Form ("Jawaban Anda telah terkirim...") pada halaman
+  /// `/formResponse`, atau tautan "kirim jawaban lain" bawaan Google.
+  Future<void> _checkSubmitted(String url) async {
+    if (_submittedSent || !url.contains('/formResponse')) return;
+    for (var i = 0; i < 3; i++) {
+      try {
+        final r = await _webController.runJavaScriptReturningResult(
+          "(function(){var t=((document.body&&document.body.innerText)||'').toLowerCase();"
+          "return t.indexOf('jawaban anda telah terkirim')>=0"
+          "||t.indexOf('examform_terkirim')>=0"
+          "||t.indexOf('your response has been recorded')>=0"
+          "||t.indexOf('jawaban anda telah direkam')>=0"
+          "||document.querySelector('a[href*=\"form_confirm\"]')!==null;})()",
+        );
+        if ('$r'.contains('true')) {
+          if (!mounted || _submittedSent) return;
+          _submittedSent = true;
+          context.read<ExamBloc>().add(const ExamFormSubmittedEvent());
+          return;
+        }
+      } catch (_) {
+        // halaman belum siap; coba lagi
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      if (!mounted) return;
+    }
   }
 
   @override
@@ -151,14 +205,64 @@ class _ExamViewState extends State<_ExamView> with WidgetsBindingObserver {
           _isExitDialogShown = true;
           _showExitDialog(context);
         }
-      case ExamStatus.finished:
+      case ExamStatus.timeUp:
+        // Kunci layar: tutup form selagi sesi ditutup di server.
+        _webController.loadRequest(Uri.parse('about:blank'));
+      case ExamStatus.exited:
         Navigator.of(context).pop();
+      case ExamStatus.finished:
+        _onFinished(context, state.finishReason);
       case ExamStatus.running:
         _isSecurityAlertShown = false;
         _isExitDialogShown = false;
       default:
         break;
     }
+  }
+
+  Future<void> _onFinished(
+    BuildContext context,
+    ExamFinishReason? reason,
+  ) async {
+    final navigator = Navigator.of(context);
+    // Tutup dialog keluar bila sedang terbuka agar pop() tidak salah sasaran.
+    if (_isExitDialogShown) {
+      navigator.pop();
+      _isExitDialogShown = false;
+    }
+    if (reason != null) {
+      final timeUp = reason == ExamFinishReason.timeUp;
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
+          title: Text(
+            timeUp ? 'Waktu ujian habis' : 'Jawaban terkirim',
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+          content: Text(
+            timeUp
+                ? 'Jawaban yang sudah Anda kirim tetap tercatat.'
+                : 'Terima kasih. Nilai akan diumumkan oleh guru.',
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+    if (mounted) navigator.pop(); // kembali ke dashboard
   }
 
   void _showSecurityAlert(BuildContext context, String message) {
@@ -261,7 +365,7 @@ class _ExamViewState extends State<_ExamView> with WidgetsBindingObserver {
         value: context.read<ExamBloc>(),
         child: BlocListener<ExamBloc, ExamState>(
           listenWhen: (p, c) =>
-              p.status != c.status && c.status == ExamStatus.finished,
+              p.status != c.status && c.status == ExamStatus.exited,
           listener: (_, _) => Navigator.of(context).pop(),
           child: const ExitDialog(),
         ),

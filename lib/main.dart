@@ -5,8 +5,8 @@ import 'package:get_it/get_it.dart';
 
 import 'core/constants/app_colors.dart';
 import 'core/services/security_service.dart';
-import 'features/home/presentation/bloc/home_bloc.dart';
-import 'features/home/presentation/pages/home_page.dart';
+import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/pages/auth_gate.dart';
 import 'injection_container.dart';
 
 Future<void> main() async {
@@ -46,9 +46,9 @@ class EnhaExam extends StatelessWidget {
           ),
           fontFamily: 'Roboto',
         ),
-        home: BlocProvider<HomeBloc>(
-          create: (_) => GetIt.I<HomeBloc>(),
-          child: const HomePage(),
+        home: BlocProvider<AuthBloc>.value(
+          value: GetIt.I<AuthBloc>(),
+          child: const AuthGate(),
         ),
       ),
     );

@@ -5,7 +5,6 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Pemuatan properti dilakukan di level teratas untuk menghindari konflik keyword 'java' di dalam blok android
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
@@ -38,7 +37,6 @@ android {
             keyPassword = keystoreProperties.getProperty("keyPassword")
             val storeFilePath = keystoreProperties.getProperty("storeFile")
             if (storeFilePath != null) {
-                // file() di sini akan mencari relatif terhadap folder android/app/
                 storeFile = file(storeFilePath)
             }
             storePassword = keystoreProperties.getProperty("storePassword")
@@ -47,6 +45,13 @@ android {
 
     buildTypes {
         getByName("release") {
+            // Optimasi ukuran aplikasi
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             signingConfig = signingConfigs.getByName("release")
         }
     }

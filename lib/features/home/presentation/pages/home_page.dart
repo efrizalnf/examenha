@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/security_service.dart';
 import '../../../../core/widgets/brand_logo.dart';
 import '../../../exam/presentation/pages/exam_page.dart';
@@ -19,10 +18,11 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _urlController = TextEditingController();
   late AnimationController _appearanceController;
-  
+
   @override
   void initState() {
     super.initState();
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           children: [
             // Decorative background elements
             _AnimatedBackground(controller: _appearanceController),
-            
+
             SafeArea(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -96,7 +96,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             'Silakan pilih metode masuk',
                             style: TextStyle(
                               fontSize: 16,
-                              color: AppColors.textSecondary.withValues(alpha: 0.7),
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.7,
+                              ),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -148,8 +150,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Input Link Manual',
-            style: TextStyle(fontWeight: FontWeight.w900)),
+        title: const Text(
+          'Input Link Manual',
+          style: TextStyle(fontWeight: FontWeight.w900),
+        ),
         content: TextField(
           controller: _urlController,
           autofocus: true,
@@ -327,7 +331,9 @@ class _AnimatedBackground extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.primary.withValues(alpha: 0.15 * controller.value),
+                      AppColors.primary.withValues(
+                        alpha: 0.15 * controller.value,
+                      ),
                       AppColors.background.withValues(alpha: 0),
                     ],
                   ),
@@ -344,7 +350,9 @@ class _AnimatedBackground extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.accent.withValues(alpha: 0.08 * controller.value),
+                      AppColors.accent.withValues(
+                        alpha: 0.08 * controller.value,
+                      ),
                       AppColors.background.withValues(alpha: 0),
                     ],
                   ),
@@ -499,7 +507,6 @@ class _SimpleInfoTile extends StatelessWidget {
 
 // Removed old widgets: _HeroActionCard, _AppHeader, _LinkStepCard, _SectionTitle, _InfoSection
 
-
 class _DialogBadge extends StatelessWidget {
   final IconData icon;
 
@@ -568,23 +575,23 @@ class _ExamCodePageState extends State<_ExamCodePage>
                       ExamPage(link: state.validatedLink!),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
-                    final fadeTween = Tween<double>(
-                      begin: 0,
-                      end: 1,
-                    ).chain(CurveTween(curve: Curves.easeOut));
-                    final scaleTween = Tween<double>(
-                      begin: 0.98,
-                      end: 1,
-                    ).chain(CurveTween(curve: Curves.easeOutCubic));
+                        final fadeTween = Tween<double>(
+                          begin: 0,
+                          end: 1,
+                        ).chain(CurveTween(curve: Curves.easeOut));
+                        final scaleTween = Tween<double>(
+                          begin: 0.98,
+                          end: 1,
+                        ).chain(CurveTween(curve: Curves.easeOutCubic));
 
-                    return FadeTransition(
-                      opacity: animation.drive(fadeTween),
-                      child: ScaleTransition(
-                        scale: animation.drive(scaleTween),
-                        child: child,
-                      ),
-                    );
-                  },
+                        return FadeTransition(
+                          opacity: animation.drive(fadeTween),
+                          child: ScaleTransition(
+                            scale: animation.drive(scaleTween),
+                            child: child,
+                          ),
+                        );
+                      },
                 ),
               )
               .then((_) {
@@ -653,9 +660,9 @@ class _ExamCodePageState extends State<_ExamCodePage>
                                 : null;
                             final otherError =
                                 state.status == HomeStatus.invalid &&
-                                        codeError == null
-                                    ? state.errorMessage
-                                    : null;
+                                    codeError == null
+                                ? state.errorMessage
+                                : null;
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -724,8 +731,8 @@ class _ExamCodePageState extends State<_ExamCodePage>
                                   keyboardType: TextInputType.number,
                                   onChanged: (value) {
                                     context.read<HomeBloc>().add(
-                                          ExamCodeChangedEvent(value),
-                                        );
+                                      ExamCodeChangedEvent(value),
+                                    );
                                   },
                                   onSubmitted: (_) => _startExam(context),
                                   decoration: InputDecoration(
@@ -751,14 +758,18 @@ class _ExamCodePageState extends State<_ExamCodePage>
                                   Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color:
-                                          AppColors.error.withValues(alpha: 0.08),
+                                      color: AppColors.error.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.error_outline_rounded,
-                                            color: AppColors.error, size: 20),
+                                        const Icon(
+                                          Icons.error_outline_rounded,
+                                          color: AppColors.error,
+                                          size: 20,
+                                        ),
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Text(
@@ -791,11 +802,14 @@ class _ExamCodePageState extends State<_ExamCodePage>
                                       ),
                                     ),
                                     child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.rocket_launch_rounded,
-                                            size: 20),
-                                        const SizedBox(width: 12),
+                                        Icon(
+                                          Icons.rocket_launch_rounded,
+                                          size: 20,
+                                        ),
+                                        SizedBox(width: 12),
                                         Text(
                                           'MULAI UJIAN SEKARANG',
                                           style: TextStyle(
@@ -910,10 +924,11 @@ class _ProgressNode extends StatelessWidget {
     final backgroundColor = isDone
         ? AppColors.primary
         : isActive
-            ? AppColors.primary
-            : AppColors.surfaceMuted;
-    final foregroundColor =
-        isDone || isActive ? Colors.white : AppColors.textSecondary;
+        ? AppColors.primary
+        : AppColors.surfaceMuted;
+    final foregroundColor = isDone || isActive
+        ? Colors.white
+        : AppColors.textSecondary;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -931,7 +946,7 @@ class _ProgressNode extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ]
                 : null,
           ),

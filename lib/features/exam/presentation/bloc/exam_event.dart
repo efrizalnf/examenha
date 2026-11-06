@@ -12,13 +12,19 @@ class ExamStartedEvent extends ExamEvent {
   const ExamStartedEvent();
 }
 
-/// Tick setiap detik dari Timer.periodic
+/// Tick setiap detik; sisa waktu dihitung dari nilai server + Stopwatch.
 class ExamTimerTickedEvent extends ExamEvent {
-  final Duration elapsed;
-  const ExamTimerTickedEvent(this.elapsed);
+  const ExamTimerTickedEvent();
+}
 
-  @override
-  List<Object?> get props => [elapsed];
+/// WebView mendeteksi halaman "jawaban terkirim" Google Form.
+class ExamFormSubmittedEvent extends ExamEvent {
+  const ExamFormSubmittedEvent();
+}
+
+/// Coba lagi menandai sesi selesai di server (jaringan gagal sebelumnya).
+class ExamFinishRetryEvent extends ExamEvent {
+  const ExamFinishRetryEvent();
 }
 
 /// Event dari native: 'userLeaveHint' atau 'windowFocusLost'
@@ -40,7 +46,7 @@ class ExamExitAttemptEvent extends ExamEvent {
   const ExamExitAttemptEvent();
 }
 
-/// User memasukkan kode ujian untuk keluar dari ujian
+/// User memasukkan kode keluar pengawas
 class ExamExitWithCodeEvent extends ExamEvent {
   final String code;
 

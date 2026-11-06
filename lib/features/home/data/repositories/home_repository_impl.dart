@@ -18,7 +18,7 @@ class HomeRepositoryImpl implements HomeRepository {
     if (!UrlValidator.isValid(url)) {
       return const Left(
         ValidationFailure(
-          'URL tidak valid.\nGunakan link Google Forms atau Microsoft Forms.',
+          'URL tidak valid.\nGunakan link Google/Microsoft Forms, short URL, atau link dari QR generator yang didukung.',
         ),
       );
     }
