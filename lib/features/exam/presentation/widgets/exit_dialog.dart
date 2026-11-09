@@ -66,8 +66,17 @@ class _ExitDialogState extends State<ExitDialog> {
                   controller: _controller,
                   autofocus: true,
                   obscureText: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  // Kode keluar 6 karakter huruf/angka (dibuat guru/admin di server).
+                  keyboardType: TextInputType.visiblePassword,
+                  textCapitalization: TextCapitalization.characters,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  maxLength: 6,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
+                    const _UpperCaseFormatter(),
+                    LengthLimitingTextInputFormatter(6),
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Kode Keluar Ujian',
                     hintText: '••••••',
@@ -130,6 +139,16 @@ class _ExitDialogState extends State<ExitDialog> {
   void _submitCode(BuildContext context) {
     context.read<ExamBloc>().add(ExamExitWithCodeEvent(_controller.text));
   }
+}
+
+class _UpperCaseFormatter extends TextInputFormatter {
+  const _UpperCaseFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) => newValue.copyWith(text: newValue.text.toUpperCase());
 }
 
 class _ExitDialogBadge extends StatelessWidget {

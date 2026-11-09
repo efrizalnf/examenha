@@ -2,6 +2,16 @@
 
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 
+## [1.6.4] — 2026-11-09
+
+### Diubah
+- **Warna aplikasi** diganti ke palet hijau kalem (sage/hijau hutan) di `AppColors`: latar, kartu, tombol, gradien hijau tua → hijau muda, status. Merah redup hanya untuk aksi keluar/galat, kuning redup untuk peringatan.
+- **Tampilan login & dashboard**: login dengan latar gradien + logo; dashboard memakai kepala gradien (sapaan, nama, NIS · kelas · jenjang, tombol keluar) dengan ringkasan "N ujian aktif / siap dimulai / berlangsung", lalu daftar **Ujian aktif** berupa kartu berlencana status (Sedang berlangsung, Siap dimulai, Belum dibuka, Selesai) berurut: berlangsung → siap dimulai → lainnya → selesai, dengan info durasi & jumlah soal dan tombol aksi lebar.
+
+### Diperbaiki
+- **Siswa tidak bisa login**: `API_BASE_URL` bawaan di `app_constants.dart` berisi teks perintah lengkap (`flutter run --dart-define=API_BASE_URL=https://…`) bukan URL saja, sehingga semua permintaan ke server gagal. Nilai bawaan kini URL Web App saja, dan `AppConstants.apiBaseUrl` otomatis mengambil URL https pertama bila nilainya tak sengaja berisi teks lain.
+- **Kode keluar hanya bisa diisi angka (tampak "2 digit")**: kode dari server 6 karakter *huruf+angka* (mis. `72BHE9`), tetapi kolom hanya menerima digit. Kini menerima huruf & angka, otomatis huruf besar, tepat 6 karakter, tanpa saran/koreksi otomatis keyboard.
+
 ## [1.6.3] — 2026-11-06
 
 ### Diperbaiki

@@ -2,15 +2,22 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'Exam ENHA';
-  static const String appVersion = '1.6.3';
+  static const String appVersion = '1.6.4';
 
-  // URL Web App ExamForm CBT (Apps Script). Isi saat build:
-  //   flutter run --dart-define=API_BASE_URL=https://script.google.com/macros/s/AKfycbxKNuDPiNkc_EKYY_Qsin7PbbKA_AH4IRyE85JOoPH1YA23yEP0MJXSBNjcoOrmjbwS/exec
-  static const String apiBaseUrl = String.fromEnvironment(
+  // URL Web App ExamForm CBT (Apps Script, deployment "Anyone"). Bisa ditimpa saat build:
+  //   flutter run --dart-define=API_BASE_URL=https://script.google.com/macros/s/XXXX/exec
+  static const String _apiBaseUrlRaw = String.fromEnvironment(
     'API_BASE_URL',
     defaultValue:
-        'flutter run --dart-define=API_BASE_URL=https://script.google.com/macros/s/AKfycby0hPmzlF_DHWjM7R68T3ifqF0gUv-Bi9ResihzoIf4nY_fQcy_A848ppLhmgfjGxZ9/exec',
+        'https://script.google.com/macros/s/AKfycby0hPmzlF_DHWjM7R68T3ifqF0gUv-Bi9ResihzoIf4nY_fQcy_A848ppLhmgfjGxZ9/exec',
   );
+
+  /// URL bersih. Bila nilai mentah tak sengaja berisi teks lain (mis. seluruh perintah
+  /// "flutter run --dart-define=..."), hanya URL https pertama yang dipakai.
+  static String get apiBaseUrl {
+    final m = RegExp(r'https://[^\s"\x27]+').firstMatch(_apiBaseUrlRaw);
+    return m == null ? _apiBaseUrlRaw.trim() : m.group(0)!;
+  }
 
   // MethodChannel names (must match MainActivity.kt)
   static const String securityMethodChannel = 'com.enha_exam/security';
